@@ -2,6 +2,7 @@ import {useSelector} from 'react-redux';
 import { useRef, useState, useEffect } from 'react';
 import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/storage';
 import {app} from '../firebase';
+ 
 export default function Profile() {
   const {currentUser} = useSelector((state) => state.user)
   const fileRef = useRef(null);
@@ -38,9 +39,9 @@ export default function Profile() {
     },
     ()=>{
       getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => 
-        setFormData({ ...formData, avatar: downloadURL }))
+        setFormData({ ...formData, avatar: downloadURL }));
     }
-    )
+    );
   };  
   
   return (

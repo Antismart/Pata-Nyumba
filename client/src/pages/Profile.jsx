@@ -1,4 +1,5 @@
 import {useSelector} from 'react-redux';
+import {Link} from 'react-router-dom'; 
 import { useRef, useState, useEffect } from 'react';
 import {getDownloadURL, getStorage, ref, uploadBytesResumable} from 'firebase/storage';
 import {app} from '../firebase';
@@ -61,7 +62,7 @@ export default function Profile() {
     e.preventDefault();
     try {
      dispatch(updateUserStart());
-     const res = await fetch('/api/user/update/${currentUser._id}', {
+     const res = await fetch(`/api/user/update/${currentUser._id}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json'
@@ -86,7 +87,7 @@ export default function Profile() {
 
     try {
       dispatch(deleteUserStart());
-      const res = await fetch('/api/user/delete/${currentUser._id}', {
+      const res = await fetch(`/api/user/delete/${currentUser._id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
@@ -183,6 +184,11 @@ export default function Profile() {
         p-3 uppercase hover:opacity-95 disabled:opacity-80">
           {loading ? 'Loading...' : 'Update'}
         </button>
+        
+        <Link className="bg-green-700 text-white p-3 
+        rounded-lg uppercase text-center hover:opacity-95" to={"/create-listing"}>
+          Create Listing
+        </Link>
 
       </form>
 

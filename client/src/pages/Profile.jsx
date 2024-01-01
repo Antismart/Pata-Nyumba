@@ -16,14 +16,15 @@ export default function Profile() {
   const [formData, setFormData] = useState({});
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const dispatch = useDispatch();
-  
+  const [showListingsError, setShowListingsError] = useState(false);
+  const [userListings, setUserListings] = useState([]);
   //firebase storage
   // allow read;  
   // allow write: if 
   // request.resource.size < 2 * 1024 * 1024 &&
   // request.resource.contentType.matches('image/.*')
   useEffect(() => {
-    if(file) {
+    if (file) {
       handleFileUpload(file);
     }
   }, [file]);
@@ -34,18 +35,21 @@ export default function Profile() {
     const storageRef = ref(storage, fileName);
     const uploadTask = uploadBytesResumable(storageRef, file);
 
-    uploadTask.on('state_changed',
+    uploadTask.on(
+      'state_changed',
     (snapshot) => {
-      const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+      const progress = 
+      (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
       setFilePerc(Math.round(progress));
     },
-
     (error) =>{
+      console.log(error);
       setFileUploadError(true); 
     },
-    ()=>{
+    () => {
       getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => 
-        setFormData({ ...formData, avatar: downloadURL }));
+        setFormData({ ...formData, avatar: downloadURL })
+        );
     }
     );
   };  
@@ -104,7 +108,7 @@ export default function Profile() {
   const handleSignOut = async () => {
     try {
       dispatch( signOutUserStart())
-      const res = await fetch('/api/auth/signout')
+      const res = await fetch(`/api/auth/signout`)
       const data = await res.json();
       if (data.success === false) {
         dispatch(deleteUserFailure(data.message));
@@ -113,6 +117,21 @@ export default function Profile() {
       dispatch(deleteUserSuccess(data));
     } catch (error) {
       dispatch(deleteUserFailure(error.message))
+    }
+  }
+
+  const handleShowListings = async () => {
+    try {
+      setShowListingsError(false);
+      const res = await fetch(`/api/user/listings/${currentUser._id}`);
+      const data = await res.json();
+      if(data.success === false) {
+        setShowListingsError(true);
+        return;
+      }
+      setUserListings(data);
+    } catch (error) {
+      setShowListingsError(true);
     }
   }
   
@@ -138,7 +157,12 @@ export default function Profile() {
 
         <p className=' text-sm self-center'>
           {fileUploadError ? 
-          (<span className=' text-red-700'>Error Image upload (image must be less than 2 mb)</span>) :
+          (<span 
+            className=' text-red-700'
+           >
+            Error Image upload (image must be less than 2 mb)
+           </span>
+          ) :
           filePerc > 0 && filePerc < 100 ? ( 
             <span className=' text-slate-700'>
             {`Uploading ${filePerc}%`}
@@ -179,26 +203,81 @@ export default function Profile() {
         id="password"
         />
 
-        <button disabled={loading}
+        <button 
+        disabled={loading}
         className=" bg-slate-700 text-white rounded-lg 
-        p-3 uppercase hover:opacity-95 disabled:opacity-80">
+        p-3 uppercase hover:opacity-95 disabled:opacity-80"
+        >
           {loading ? 'Loading...' : 'Update'}
         </button>
         
-        <Link className="bg-green-700 text-white p-3 
-        rounded-lg uppercase text-center hover:opacity-95" to={"/create-listing"}>
+        <Link 
+        className="bg-green-700 text-white p-3 
+        rounded-lg uppercase text-center hover:opacity-95" to={"/create-listing"}
+        >
           Create Listing
         </Link>
 
       </form>
 
-      <div className='flex justify-between mt-5'>
-        <span onClick={handleDeleteUser} className=' text-red-700 cursor-pointer'>Delete account</span>
-        <span onClick={handleSignOut} className=' text-red-700 cursor-pointer'>Sign out</span>
+      <div 
+      className='flex justify-between mt-5'
+      >
+        <span 
+        onClick={handleDeleteUser} 
+        className=' text-red-700 cursor-pointer'
+        >
+          Delete account
+        </span>
+        <span 
+        onClick={handleSignOut} 
+        className=' text-red-700 cursor-pointer'
+        >
+          Sign out
+        </span>
 
       </div>
-      <p className=' text-red-700 mt-5'>{error ? error : ''}</p>
-      <p className=' text-green-700 mt-5'>{updateSuccess ? 'Profile Updated' : ''}</p>
+      <p 
+      className=' text-red-700 mt-5'
+      >
+        {error ? error : ''}
+      </p>
+      <p 
+      className=' text-green-700 mt-5'
+      >
+        {updateSuccess ? 'Profile Updated' : ''}
+      </p>
+      <button 
+      onClick={handleShowListings} 
+      className=' text-green-700 w-full'
+      >
+        Show Listing
+      </button>
+      <p className=' text-red-700 mt-5'>
+        {showListingsError ? 'Error showing listings' : ''}
+      </p>
+      
+      {userListings && userListings.length > 0 &&
+      userListings.map((listing) => 
+      <div key={listing._id} className=' border rounded-lg 
+      p-3 flex justify-between items-center'>
+        <Link to={`/listing/${listing._id}`}
+        >
+          <img 
+          src={listing.imageUrls[0]} 
+          alt="listing cover" 
+          className='w-16 h-16 object-contain'
+          />
+        </Link>
+        <Link className=' text-slate-700 font-semibold flex-1 hover:underline truncate' to={`/listing/${listing._id}`}>
+          <p >{listing.name}</p>
+        </Link>
+
+        <div className=''>
+
+        </div>
+      </div>
+    )}
     </div>
   ) 
 }

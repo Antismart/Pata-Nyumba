@@ -90,31 +90,40 @@ export default function CreateListing() {
     }
 
     const handleChange = (e) =>{
-        if(e.target.id === 'sell' || e.target.id === 'rent') {
+        if(e.target.id === 'sale' || e.target.id === 'rent') {
             setFormData({
                 ...formData,
                 type: e.target.id
-            })
+            });
         }
-        if(e.target.id === 'parking' || e.target.id === 'furnished' || e.target.id === 'offer'){
+        if(
+            e.target.id === 'parking' || 
+            e.target.id === 'furnished' || 
+            e.target.id === 'offer'
+            ) {
             setFormData({
                 ...formData,
-                [e.target.id]: e.target.checked
-            })
+                [e.target.id]: e.target.checked,
+            });
         }
-        if(e.target.type ==='number' || e.target.type === 'text' || e.target.type === 'textarea'){
+        if(
+            e.target.type === 'number' || 
+            e.target.type === 'text' || 
+            e.target.type === 'textarea'
+            ) {
             setFormData({
                 ...formData,
-                [e.target.id]: e.target.value
-            })
+                [e.target.id]: e.target.value,
+            });
         }
-    }
+    };
     const handleSubmit =  async (e) => {
         e.preventDefault()
         try {
-            if (formData.imageUrls.length < 1) return setError('You must upload at least one image')
-            if (+formData.regularPrice < +formData.discountPrice)
-        return setError('Discount price must be lower than regular price');
+        if (formData.imageUrls.length < 1) 
+            return setError('You must upload at least one image')
+        if (+formData.regularPrice < +formData.discountPrice)
+          return setError('Discount price must be lower than regular price');
             setLoading(true)
             setError(false)
             const res = await fetch('/api/listing/create', {
@@ -124,8 +133,8 @@ export default function CreateListing() {
                 },
                 body: JSON.stringify({
                     ...formData,
-                    useRef: currentUser._id,
-                }),
+                    userRef: currentUser._id,
+                }), 
             });
             const data = await res.json();
             setLoading(false);
@@ -138,6 +147,7 @@ export default function CreateListing() {
             setLoading(false)
         }
     }
+
      return (
         <main className="p-3 max-w-4xl mx-auto">
             <h1 className="text-3xl font-semibold text-center my-7 ">Create a Listing</h1>
@@ -176,18 +186,18 @@ export default function CreateListing() {
                         <div className="flex gap-2">
                             <input 
                                type="checkbox" 
-                               id="sell" 
+                               id="sale" 
                                className="w-5"
                                onChange={handleChange}
-                               checked={formData.type === 'sell'}
+                               checked={formData.type === 'sale'}
                             />
                             <span>Sell</span>
                         </div>
                         <div className="flex gap-2">
                             <input 
-                               type="checkbox" 
-                               id="rent" 
-                               className="w-5"
+                               type='checkbox' 
+                               id='rent' 
+                               className='w-5'
                                onChange={handleChange}
                                checked={formData.type === 'rent'}
                             />
@@ -199,7 +209,7 @@ export default function CreateListing() {
                                id="parking" 
                                className="w-5"
                                onChange={handleChange}
-                               checked={formData.type === 'parking'}
+                               checked={formData.parking}
                             />
                             <span>Parking spot</span>
                         </div>
@@ -209,7 +219,7 @@ export default function CreateListing() {
                                 id="furnished" 
                                 className="w-5"
                                 onChange={handleChange}
-                                checked={formData.type === 'furnished'}
+                                checked={formData.furnished}
                             />
                             <span>Furnished</span>
                         </div>
@@ -219,7 +229,7 @@ export default function CreateListing() {
                                 id="offer" 
                                 className="w-5"
                                 onChange={handleChange}
-                                checked={formData.type === 'offer'}
+                                checked={formData.offer}
                             />
                             <span>Offer</span>
                         </div>

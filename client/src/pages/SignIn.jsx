@@ -4,11 +4,10 @@ import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
 import { 
   signInStart, 
-  signInSuccess, 
+  signInSuccess,
   signInFailure 
 } from '../redux/user/userSlice';
 import OAuth from '../components/OAuth';
-
 export default function SignIn() {
   const [formData, setFormData] = useState({});
 
